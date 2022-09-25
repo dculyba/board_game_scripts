@@ -1,6 +1,7 @@
 import random
 import csv
 
+USE_DOUBLES = False
 
 class Die:
     def __init__(self, vals=[1,2,3,4,5,6], is_special=False):
@@ -11,6 +12,9 @@ class Die:
     def roll(self):
         self.current_val = random.choice(self.vals)
         return self.current_val
+
+    def __str__(self):
+        return str(self.current_val + "["+str(self.vals+"]"))
 
 class DiceSet:
     def __init__(self, name="", dice=[]):
@@ -46,17 +50,19 @@ class Recipe:
         self.pattern = pattern
 
     def check_roll(self, die_roll):
+        original_roll = die_roll.copy()
         unmatched = self.pattern.copy()
         for symbol in self.pattern:
             if symbol in die_roll:
                 die_roll.remove(symbol)
                 unmatched.remove(symbol)
-        for symbol in unmatched:
-            pair_index = has_pair(die_roll)
-            if pair_index != -1:
-                unmatched.remove(symbol)
-                die_roll.pop(pair_index)
-                die_roll.pop(pair_index)
+        if USE_DOUBLES:
+            for symbol in unmatched:
+                pair_index = has_pair(die_roll)
+                if pair_index != -1:
+                    unmatched.remove(symbol)
+                    die_roll.pop(pair_index)
+                    die_roll.pop(pair_index)
         if len(unmatched) == 0:
             return True
         return False
@@ -109,7 +115,9 @@ class RollSimulator:
     def add_dice_set(self, dice_set):
         self.dice_sets.append(dice_set)
 
-    def simulate(self, cycles=100):
+    def simulate(self, cycles=100, use_doubles=True):
+        global USE_DOUBLES
+        USE_DOUBLES = use_doubles
         self.results.clear()
         self.field_names.clear()
         for recipe in self.recipes:
@@ -162,7 +170,7 @@ def main():
     uc_sim.add_recipe(Recipe("Four Matching", [1, 1, 1, 1]))
     uc_sim.add_recipe(Recipe("Two Matching Two Unique", [1, 1, 2, 3]))
     uc_sim.add_recipe(Recipe("Two Matching One Unique", [1, 1, 2]))
-    uc_sim.add_recipe(Recipe("Two Matching Two Unique", [1, 1, 1, 2]))
+    uc_sim.add_recipe(Recipe("Three Matching One Unique", [1, 1, 1, 2]))
     uc_sim.add_recipe(Recipe("Two Matching Two Matching", [1, 1, 2, 2]))
     uc_sim.add_recipe(Recipe("Five Unique", [1, 2, 3, 4, 5]))
     uc_sim.add_recipe(Recipe("Two Matching Three Unique", [1, 1, 2, 3, 4]))
@@ -177,44 +185,44 @@ def main():
     specialty_die_3 = [Die([3, 3, 3, 3, 6, 6], is_special=True)]
     specialty_die_4 = [Die([4, 4, 4, 4, 6, 6], is_special=True)]
     specialty_die_5 = [Die([5, 5, 5, 5, 6, 6], is_special=True)]
-    uc_sim.add_dice_set(DiceSet("No Specialty Dice", base_dice_set))
+    # uc_sim.add_dice_set(DiceSet("No Specialty Dice", base_dice_set))
 
     uc_sim.add_dice_set(DiceSet("One Specialty Die", base_dice_set+specialty_die_1))
-    uc_sim.add_dice_set(DiceSet("Two Specialty Die", base_dice_set + specialty_die_2))
-    uc_sim.add_dice_set(DiceSet("Three Specialty Die", base_dice_set + specialty_die_3))
-    uc_sim.add_dice_set(DiceSet("Four Specialty Die", base_dice_set + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("Five Specialty Die", base_dice_set + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Two Specialty Die", base_dice_set + specialty_die_2))
+    # uc_sim.add_dice_set(DiceSet("Three Specialty Die", base_dice_set + specialty_die_3))
+    # uc_sim.add_dice_set(DiceSet("Four Specialty Die", base_dice_set + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("Five Specialty Die", base_dice_set + specialty_die_5))
+    #
+    # uc_sim.add_dice_set(DiceSet("One Two Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2))
+    # uc_sim.add_dice_set(DiceSet("One Three Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3))
+    # uc_sim.add_dice_set(DiceSet("One Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("One Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Two Three Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3))
+    # uc_sim.add_dice_set(DiceSet("Two Four Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("Two Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Three Four Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("Three Five Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Four Five Specialty Dice", base_dice_set + specialty_die_4 + specialty_die_5))
+    #
+    # uc_sim.add_dice_set(DiceSet("One Two Three Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3))
+    # uc_sim.add_dice_set(DiceSet("One Two Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("One Two Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("One Three Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("One Three Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("One Four Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_4 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Two Three Four Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("Two Three Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Two Four Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_4 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Three Four Five Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_4 + specialty_die_5))
+    #
+    # uc_sim.add_dice_set(DiceSet("One Two Three Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3 + specialty_die_4))
+    # uc_sim.add_dice_set(DiceSet("One Two Three Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("One Two Four Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_4 + specialty_die_5))
+    # uc_sim.add_dice_set(DiceSet("Two Three Four Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_4 + specialty_die_5))
 
-    uc_sim.add_dice_set(DiceSet("One Two Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2))
-    uc_sim.add_dice_set(DiceSet("One Three Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3))
-    uc_sim.add_dice_set(DiceSet("One Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("One Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Two Three Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3))
-    uc_sim.add_dice_set(DiceSet("Two Four Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("Two Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Three Four Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("Three Five Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Four Five Specialty Dice", base_dice_set + specialty_die_4 + specialty_die_5))
-
-    uc_sim.add_dice_set(DiceSet("One Two Three Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3))
-    uc_sim.add_dice_set(DiceSet("One Two Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("One Two Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("One Three Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("One Three Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_3 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("One Four Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_4 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Two Three Four Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("Two Three Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Two Four Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_4 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Three Four Five Specialty Dice", base_dice_set + specialty_die_3 + specialty_die_4 + specialty_die_5))
-
-    uc_sim.add_dice_set(DiceSet("One Two Three Four Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3 + specialty_die_4))
-    uc_sim.add_dice_set(DiceSet("One Two Three Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_3 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("One Two Four Five Specialty Dice", base_dice_set + specialty_die_1 + specialty_die_2 + specialty_die_4 + specialty_die_5))
-    uc_sim.add_dice_set(DiceSet("Two Three Four Five Specialty Dice", base_dice_set + specialty_die_2 + specialty_die_3 + specialty_die_4 + specialty_die_5))
-
-    uc_sim.simulate(10000)
+    uc_sim.simulate(100000, use_doubles=True)
     uc_sim.print_results()
-    uc_sim.write_results_csv('results.csv')
+    uc_sim.write_results_csv('Test - doubles.csv')
 
 if __name__ == "__main__":
     main()
